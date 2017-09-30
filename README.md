@@ -1,0 +1,6 @@
+RPS Slackbot
+============
+
+```bash
+> rackup
+```
