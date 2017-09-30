@@ -85,9 +85,9 @@ module RpsBot
     	puts "===="
 
     	if move == "stop"
-    		result = if game[:scores][:player] > game[:scores][:bot]
+    		result = if game["scores"]["player"] > game["scores"]["bot"]
 	    			"won"
-	    		elsif game[:scores][:bot] > game[:scores][:player]
+	    		elsif game["scores"]["bot"] > game["scores"]["player"]
 	    			"lost"
 	    		else
 	    			"drew"
@@ -99,18 +99,18 @@ module RpsBot
     	else
 	    	response = ["rock", "paper", "scissors"].sample
 
-	    	game[:matches] << [move, response]
+	    	game["matches"] << [move, response]
 
 	    	unless response == move
 	    		case [move, response]
 	    		when (["rock", "paper"] || ["paper", "scissors"] || ["scissors", "rock"])
-	    			game[:scores][:bot] += 1
+	    			game["scores"]["bot"] += 1
 	    		when (["rock", "scissors"] || ["paper", "rock"] || ["scissors", "paper"])
-	    			game[:scores][:player] += 1
+	    			game["scores"]["player"] += 1
 	    		end
 	    	end
 
-	    	moves = game[:matches].map do |match|
+	    	moves = game["matches"].map do |match|
 	    		{
 	    			"text" => { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[0]] + " " + { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[1]]
 	    		}
