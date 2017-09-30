@@ -1,7 +1,9 @@
 require 'sinatra/base'
 require 'sinatra/json'
+require 'redis'
+require 'json'
 
-$games = {}
+redis = Redis.new
 
 module RpsBot
   class Web < Sinatra::Base
@@ -20,7 +22,7 @@ module RpsBot
 
     	id = SecureRandom.uuid
 
-    	$games[id] = {scores: {player: 0, bot: 0}, matches: []}
+    	redis.setex(id, 60 * 60 * 24, {scores: {player: 0, bot: 0}, matches: []}.to_json)
 
     	json({
     		"text" => "Rock Paper Scissors",
@@ -70,18 +72,18 @@ module RpsBot
     	id = payload["callback_id"]
     	move = payload["actions"][0]["value"]
 
+    	game = JSON.parse(redis.get(id))
+
     	puts payload
 
     	if move == "stop"
-    		result = if $games[id][:scores][:player] > $games[id][:scores][:bot]
+    		result = if game[:scores][:player] > game[:scores][:bot]
 	    			"won"
-	    		elsif $games[id][:scores][:bot] > $games[id][:scores][:player]
+	    		elsif game[:scores][:bot] > game[:scores][:player]
 	    			"lost"
 	    		else
 	    			"drew"
 	    		end
-
-	    	$games.delete(id)
 
     		json({
     			"text" => "You #{result}"
@@ -89,22 +91,24 @@ module RpsBot
     	else
 	    	response = ["rock", "paper", "scissors"].sample
 
-	    	$games[id][:matches] << [move, response]
+	    	game[:matches] << [move, response]
 
 	    	unless response == move
 	    		case [move, response]
 	    		when (["rock", "paper"] || ["paper", "scissors"] || ["scissors", "rock"])
-	    			$games[id][:scores][:bot] += 1
+	    			game[:scores][:bot] += 1
 	    		when (["rock", "scissors"] || ["paper", "rock"] || ["scissors", "paper"])
-	    			$games[id][:scores][:player] += 1
+	    			game[:scores][:player] += 1
 	    		end
 	    	end
 
-	    	moves = $games[id][:matches].map do |match|
+	    	moves = game[:matches].map do |match|
 	    		{
 	    			"text" => { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[0]] + " " + { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[1]]
 	    		}
 	    	end
+
+	    	redis.setex(id, 60 * 60 * 24, game.to_json)
 
 	    	json({
 	    		"text" => "You played move #{move}",
