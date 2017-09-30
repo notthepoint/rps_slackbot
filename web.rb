@@ -17,7 +17,6 @@ module RpsBot
     end
 
     post '/' do
-    	puts request.headers
     	puts request.inspect
     	payload = JSON.parse(request['payload'] || '{}')
 
