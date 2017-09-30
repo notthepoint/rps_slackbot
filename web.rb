@@ -5,11 +5,21 @@ $games = {}
 
 module RpsBot
   class Web < Sinatra::Base
+
+  	def valid?(payload)
+  		token = payload['token']
+  		token && token == ENV['SLACK_VERIFICATION_TOKEN']
+  	end
+
     get '/' do
       json $games
     end
 
     post '/' do
+    	payload = JSON.parse(request['payload'] || '{}')
+
+    	return [403, {}, "Invalid Request"] unless valid?(payload)
+
     	id = SecureRandom.uuid
 
     	$games[id] = {scores: {player: 0, bot: 0}, matches: []}
@@ -55,7 +65,10 @@ module RpsBot
     end
 
     post '/move' do
-    	payload = JSON.parse(request['payload'])
+    	payload = JSON.parse(request['payload'] || '{}')
+
+    	return [403, {}, "Invalid Request"] unless valid?(payload)
+
     	id = payload["callback_id"]
     	move = payload["actions"][0]["value"]
 
