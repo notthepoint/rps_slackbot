@@ -80,6 +80,9 @@ module RpsBot
     	game = JSON.parse(redis.get(id))
 
     	puts payload
+    	puts "===="
+    	puts game
+    	puts "===="
 
     	if move == "stop"
     		result = if game[:scores][:player] > game[:scores][:bot]
