@@ -3,10 +3,15 @@ require 'sinatra/json'
 require 'redis'
 require 'json'
 
-redis = Redis.new
 
 module RpsBot
   class Web < Sinatra::Base
+		
+		def initialize
+			@redis = Redis.new
+		end
+
+		attr_reader :redis
 
   	def valid?(payload)
   		token = payload['token']
