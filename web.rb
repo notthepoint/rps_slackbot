@@ -7,7 +7,6 @@ module RpsBot
   class Web < Sinatra::Base
 
   	def valid?(payload)
-  		puts payload
   		token = payload['token']
   		token && token == ENV['SLACK_VERIFICATION_TOKEN']
   	end
@@ -17,10 +16,7 @@ module RpsBot
     end
 
     post '/' do
-    	puts request.inspect
-    	payload = JSON.parse(request['payload'] || '{}')
-
-    	return [403, {}, "Invalid Request"] unless valid?(payload)
+    	return [403, {}, "Invalid Request"] unless valid?(request.params)
 
     	id = SecureRandom.uuid
 
