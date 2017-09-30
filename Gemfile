@@ -4,6 +4,7 @@ gem 'puma'
 gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'dotenv'
+gem 'redis'
 
 group :development, :test do
   gem 'rake'
