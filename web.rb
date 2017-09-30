@@ -17,6 +17,7 @@ module RpsBot
     end
 
     post '/' do
+    	puts request
     	payload = JSON.parse(request['payload'] || '{}')
 
     	return [403, {}, "Invalid Request"] unless valid?(payload)
