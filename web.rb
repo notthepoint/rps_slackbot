@@ -7,6 +7,7 @@ module RpsBot
   class Web < Sinatra::Base
 
   	def valid?(payload)
+  		puts payload
   		token = payload['token']
   		token && token == ENV['SLACK_VERIFICATION_TOKEN']
   	end
