@@ -5,6 +5,7 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'dotenv'
 gem 'redis'
+gem 'httparty'
 
 group :development, :test do
   gem 'rake'

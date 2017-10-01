@@ -2,12 +2,16 @@ require 'sinatra/base'
 require 'sinatra/json'
 require 'redis'
 require 'json'
-
+require 'httparty'
 
 module RpsBot
   class Web < Sinatra::Base
+  	configure do
+  		enable :logging
+  	end
 		
 		def initialize
+			super
 			@redis = Redis.new
 		end
 
@@ -19,7 +23,17 @@ module RpsBot
   	end
 
     get '/' do
-      json $games
+      "Rock Paper Scissors"
+    end
+
+    get '/authorize' do
+    	logger.info HTTParty.post('https://slack.com/api/oauth.access', body: {
+    		client_id:     ENV['SLACK_CLIENT_ID'] || '',
+      	client_secret: ENV['SLACK_CLIENT_SECRET'] || '',
+      	code:          params['code']
+    	})
+
+    	[200, {}, "OK"]
     end
 
     post '/' do
@@ -79,10 +93,7 @@ module RpsBot
 
     	game = JSON.parse(redis.get(id))
 
-    	puts payload
-    	puts "===="
-    	puts game
-    	puts "===="
+    	logger.info payload
 
     	if move == "stop"
     		result = if game["scores"]["player"] > game["scores"]["bot"]
