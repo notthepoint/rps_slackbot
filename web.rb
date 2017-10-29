@@ -3,6 +3,8 @@ require 'sinatra/json'
 require 'redis'
 require 'json'
 require 'httparty'
+# require 'bots/random'
+require 'meta_meta_strategy'
 
 module RpsBot
   class Web < Sinatra::Base
@@ -46,7 +48,8 @@ module RpsBot
 
     	id = SecureRandom.uuid
 
-    	redis.setex(id, 60 * 60 * 24, {scores: {player: 0, bot: 0}, matches: []}.to_json)
+    	redis.setex(id, 60 * 60 * 24,
+    		{scores: {player: 0, bot: 0}, matches: [], bot_scores: MetaMetaStrategy.new.scores}.to_json)
 
     	json({
     		"text" => "Rock Paper Scissors",
@@ -62,19 +65,19 @@ module RpsBot
                 "name" => "move",
                 "text" => ":fist:",
                 "type" => "button",
-                "value" => "rock"
+                "value" => "r"
               },
               {
                 "name" => "move",
                 "text" => ":hand:",
                 "type" => "button",
-                "value" => "paper"
+                "value" => "p"
               },
               {
                 "name" => "move",
                 "text" => ":v:",
                 "type" => "button",
-                "value" => "scissors"
+                "value" => "s"
               },
               {
                 "name" => "move",
@@ -97,6 +100,7 @@ module RpsBot
     	move = payload["actions"][0]["value"]
 
     	game = JSON.parse(redis.get(id))
+    	mm_strategy = MetaMetaStrategy.new(game["bot_scores"])
 
     	logger.info payload
 
@@ -111,24 +115,25 @@ module RpsBot
 
     		json({
     			"text" => "You #{result}"
-    			})
+    		})
     	else
-	    	response = ["rock", "paper", "scissors"].sample
+	    	opponent_moves = game["matches"].map { |m| m[0] }
+	    	response = mm_strategy.move(opponent_moves)
 
 	    	game["matches"] << [move, response]
 
 	    	unless response == move
 	    		case [move, response]
-	    		when (["rock", "paper"] || ["paper", "scissors"] || ["scissors", "rock"])
+	    		when ["r", "p"], ["p", "s"], ["s", "r"]
 	    			game["scores"]["bot"] += 1
-	    		when (["rock", "scissors"] || ["paper", "rock"] || ["scissors", "paper"])
+	    		when ["r", "s"], ["p", "r"], ["s", "p"]
 	    			game["scores"]["player"] += 1
 	    		end
 	    	end
 
 	    	moves = game["matches"].map do |match|
 	    		{
-	    			"text" => { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[0]] + " " + { "rock" => ":fist:", "paper" => ":hand:", "scissors" => ":v:" }[match[1]]
+	    			"text" => { "r" => ":fist:", "p" => ":hand:", "s" => ":v:" }[match[0]] + " " + { "r" => ":fist:", "p" => ":hand:", "s" => ":v:" }[match[1]]
 	    		}
 	    	end
 
@@ -147,19 +152,19 @@ module RpsBot
 	              "name" => "move",
 	              "text" => ":fist:",
 	              "type" => "button",
-	              "value" => "rock"
+	              "value" => "r"
 	            },
 	            {
 	              "name" => "move",
 	              "text" => ":hand:",
 	              "type" => "button",
-	              "value" => "paper"
+	              "value" => "p"
 	            },
 	            {
 	              "name" => "move",
 	              "text" => ":v:",
 	              "type" => "button",
-	              "value" => "scissors"
+	              "value" => "s"
 	            },
 	            {
                 "name" => "move",
