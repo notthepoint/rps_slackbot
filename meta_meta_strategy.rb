@@ -26,15 +26,13 @@ class MetaMetaStrategy
   attr_accessor :scores
 
   def move(opponent_moves)
-    if opponent_moves.length.positive?
-      run_bots(opponent_moves)
-      selected_bot, move_index = choose_best_move
-      potential_move = @bots[selected_bot].move(opponent_moves)
+    return %w[r p s].sample unless opponent_moves.length.positive?
 
-      calculate_move(potential_move, move_index)
-    else
-      %w[r p s].sample
-    end
+    run_bots(opponent_moves)
+    selected_bot, move_index = choose_best_move
+    potential_move = @bots[selected_bot].move(opponent_moves)
+
+    calculate_move(potential_move, move_index)
   end
 
   def run_bots(opponent_moves)
@@ -69,7 +67,7 @@ class MetaMetaStrategy
         score[idx + 1] += calculate_result(latest_move, move)
       end
 
-      [score[0], score[1], score[2], score[3]]
+      score
     end
   end
 
