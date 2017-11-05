@@ -1,5 +1,6 @@
 require 'rack/test'
 require 'rspec'
+require 'mock_redis'
 
 ENV['RACK_ENV'] = 'test'
 
@@ -35,6 +36,11 @@ RSpec.configure do |config|
     # a real object. This is generally recommended, and will default to
     # `true` in RSpec 4.
     mocks.verify_partial_doubles = true
+  end
+
+  config.before(:each) do
+    mock_redis = MockRedis.new
+    allow(Redis).to receive(:new).and_return(mock_redis)
   end
 
   # configure sinatra test support

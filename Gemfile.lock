@@ -13,6 +13,7 @@ GEM
     hashdiff (0.3.6)
     httparty (0.15.5)
       multi_xml (>= 0.5.2)
+    mock_redis (0.17.3)
     multi_json (1.12.2)
     multi_xml (0.6.0)
     mustermann (1.0.1)
@@ -66,6 +67,7 @@ DEPENDENCIES
   dotenv
   foreman
   httparty
+  mock_redis
   puma
   rack-test
   rake

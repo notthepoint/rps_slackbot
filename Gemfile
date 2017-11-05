@@ -17,4 +17,5 @@ group :test do
   gem 'rack-test'
   gem 'vcr'
   gem 'webmock'
+  gem 'mock_redis'
 end

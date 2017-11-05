@@ -81,5 +81,19 @@ describe RpsBot::Web do
 
       expect(last_response).to be_forbidden
     end
+
+    context 'a good token' do
+      before do
+        allow(SecureRandom).to receive(:uuid).and_return(id)
+      end
+
+      it 'responds with the expected slack appropriate response' do
+        post '/', token: 'good-token'
+
+        expect(last_response).to be_ok
+        expect(last_response.content_type).to eq 'application/json'
+        expect(JSON.parse(last_response.body)).to eq payload
+      end
+    end
   end
 end
