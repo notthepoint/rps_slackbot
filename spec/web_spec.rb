@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe RpsBot::Web do
-  context '#authorize' do
+  context '/authorize' do
     let(:expected_url) { 'https://slack.com/api/oauth.access' }
     let(:expected_body) do
       {
@@ -25,6 +25,61 @@ describe RpsBot::Web do
 
       expect(last_response).to be_ok
       expect(last_response.body).to eq 'INSTALLED'
+    end
+  end
+
+  context '/' do
+    let!(:id) { 'some-generated-id' }
+    let(:payload) do
+      {
+        'text' => 'Rock Paper Scissors',
+        'attachments' => [
+          {
+            'text' => 'Make your move...',
+            'fallback' => 'BOOOO!',
+            'callback_id' => id,
+            'color' => '#3AA3E3',
+            'attachment_type' => 'default',
+            'actions' => [
+              {
+                'name' => 'move',
+                'text' => ':fist:',
+                'type' => 'button',
+                'value' => 'r'
+              },
+              {
+                'name' => 'move',
+                'text' => ':hand:',
+                'type' => 'button',
+                'value' => 'p'
+              },
+              {
+                'name' => 'move',
+                'text' => ':v:',
+                'type' => 'button',
+                'value' => 's'
+              },
+              {
+                'name' => 'move',
+                'text' => 'End game',
+                'type' => 'button',
+                'value' => 'stop'
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('SLACK_VERIFICATION_TOKEN').and_return('good-token')
+    end
+
+    it 'discards unauthorized requests' do
+      post '/', token: 'bad-token'
+
+      expect(last_response).to be_forbidden
     end
   end
 end
