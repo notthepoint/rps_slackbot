@@ -17,7 +17,8 @@ class MetaMetaStrategy
   def initialize(previous_scores = nil)
     @bots = {
       'random' => RandomBot.new,
-      'always_rock' => AlwaysRockBot.new
+      'always_rock' => AlwaysRockBot.new,
+      'most_frequent' => MostFrequentBot.new
     }
 
     @scores = previous_scores || scores_template(@bots)
