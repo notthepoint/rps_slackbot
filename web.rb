@@ -4,7 +4,7 @@ require 'redis'
 require 'json'
 require 'httparty'
 # require 'bots/random'
-require 'meta_meta_strategy'
+require_relative 'meta_meta_strategy'
 
 module RpsBot
   class Web < Sinatra::Base
