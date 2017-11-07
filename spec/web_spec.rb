@@ -11,13 +11,6 @@ describe RpsBot::Web do
       }
     end
 
-    before do
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('SLACK_CLIENT_ID').and_return 'client_id'
-      allow(ENV).to receive(:[])
-        .with('SLACK_CLIENT_SECRET').and_return 'client_secret'
-    end
-
     it 'makes an API call to slack oauth' do
       expect(HTTParty).to receive(:post).with(expected_url, body: expected_body)
 
@@ -69,11 +62,6 @@ describe RpsBot::Web do
           }
         ]
       }
-    end
-
-    before do
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('SLACK_VERIFICATION_TOKEN').and_return('good-token')
     end
 
     it 'discards unauthorized requests' do
