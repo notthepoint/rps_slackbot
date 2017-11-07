@@ -84,4 +84,12 @@ describe RpsBot::Web do
       end
     end
   end
+
+  context '/move' do
+    it 'discards unauthorized requests' do
+      post '/', token: 'bad-token'
+
+      expect(last_response).to be_forbidden
+    end
+  end
 end
