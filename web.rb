@@ -40,6 +40,7 @@ ACTIONS = [
 EMOJIS = { 'r' => ':fist:', 'p' => ':hand:', 's' => ':v:' }.freeze
 
 module RpsBot
+  # RpsBot::Web is a rock paper scissors slackbot
   class Web < Sinatra::Base
     configure do
       enable :logging
@@ -107,42 +108,38 @@ module RpsBot
       game = JSON.parse(redis.get(id))
       mm_strategy = MetaMetaStrategy.new(game['bot_scores'])
 
-      if move == 'stop'
-        result = if game['scores']['player'] > game['scores']['bot']
-                   'won'
-                 elsif game['scores']['bot'] > game['scores']['player']
-                   'lost'
-                 else
-                   'drew'
-                 end
+      return json('text' => "You #{result(game)}") if move == 'stop'
 
-        json('text' => "You #{result}")
-      else
-        opponent_moves = game['matches'].map { |m| m[0] }
-        response = mm_strategy.move(opponent_moves)
+      opponent_moves = game['matches'].map { |m| m[0] }
+      response = mm_strategy.move(opponent_moves)
 
-        game['bot_scores'] = mm_strategy.scores
-        game['matches'] << [move, response]
+      game['bot_scores'] = mm_strategy.scores
+      game['matches'] << [move, response]
 
-        unless response == move
-          case [move, response]
-          when %w[r p], %w[p s], %w[s r]
-            game['scores']['bot'] += 1
-          when %w[r s], %w[p r], %w[s p]
-            game['scores']['player'] += 1
-          end
+      unless response == move
+        case [move, response]
+        when %w[r p], %w[p s], %w[s r]
+          game['scores']['bot'] += 1
+        when %w[r s], %w[p r], %w[s p]
+          game['scores']['player'] += 1
         end
-
-        moves = game['matches'].map do |match|
-          {
-            'text' => "#{EMOJIS[match[0]]} #{EMOJIS[match[1]]}"
-          }
-        end
-
-        redis.setex(id, 60 * 60 * 24, game.to_json)
-
-        json(build_response(id, "You played move #{move}", *moves))
       end
+
+      moves = game['matches'].map do |match|
+        { 'text' => "#{EMOJIS[match[0]]} #{EMOJIS[match[1]]}" }
+      end
+
+      redis.setex(id, 60 * 60 * 24, game.to_json)
+
+      json(build_response(id, "You played move #{move}", *moves))
+    end
+
+    private
+
+    def result(game)
+      return 'won' if game['scores']['player'] > game['scores']['bot']
+      return 'lost' if game['scores']['bot'] > game['scores']['player']
+      'drew'
     end
 
     def build_response(id, message, *moves)
