@@ -91,5 +91,40 @@ describe RpsBot::Web do
 
       expect(last_response).to be_forbidden
     end
+
+    context 'a game is inflight' do
+      let!(:id) { 'some-game-id' }
+
+      context 'move is stop' do
+        def app
+          RpsBot::Web.new!
+        end
+
+        let(:move) { 'stop' }
+        let(:payload) do
+          {
+            callback_id: id,
+            token: 'good-token',
+            actions: [{ value: move }]
+          }.to_json
+        end
+
+        let!(:game) do
+          { 'scores' => { 'player' => 1, 'bot' => 0 } }
+        end
+
+        before do
+          app.redis.set(id, game.to_json)
+        end
+
+        it 'returns the result' do
+          post '/move', payload: payload
+
+          expect(last_response).to be_ok
+          expect(last_response.content_type).to eq 'application/json'
+          expect(JSON.parse(last_response.body)).to eq({ 'text' => 'You won' })
+        end
+      end
+    end
   end
 end

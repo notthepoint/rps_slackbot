@@ -102,8 +102,6 @@ module RpsBot
     	game = JSON.parse(redis.get(id))
     	mm_strategy = MetaMetaStrategy.new(game["bot_scores"])
 
-    	logger.info payload
-
     	if move == "stop"
     		result = if game["scores"]["player"] > game["scores"]["bot"]
 	    			"won"
