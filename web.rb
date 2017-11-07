@@ -118,6 +118,7 @@ module RpsBot
 	    	opponent_moves = game["matches"].map { |m| m[0] }
 	    	response = mm_strategy.move(opponent_moves)
 
+        game['bot_scores'] = mm_strategy.scores
 	    	game["matches"] << [move, response]
 
 	    	unless response == move
