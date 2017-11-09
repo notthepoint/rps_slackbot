@@ -4,7 +4,7 @@ require 'redis'
 require 'json'
 require 'httparty'
 # require 'bots/random'
-require 'meta_meta_strategy'
+require_relative 'meta_meta_strategy'
 
 module RpsBot
   class Web < Sinatra::Base
@@ -102,8 +102,6 @@ module RpsBot
     	game = JSON.parse(redis.get(id))
     	mm_strategy = MetaMetaStrategy.new(game["bot_scores"])
 
-    	logger.info payload
-
     	if move == "stop"
     		result = if game["scores"]["player"] > game["scores"]["bot"]
 	    			"won"
@@ -120,6 +118,7 @@ module RpsBot
 	    	opponent_moves = game["matches"].map { |m| m[0] }
 	    	response = mm_strategy.move(opponent_moves)
 
+        game['bot_scores'] = mm_strategy.scores
 	    	game["matches"] << [move, response]
 
 	    	unless response == move
