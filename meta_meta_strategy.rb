@@ -14,12 +14,8 @@ DEFAULT_BOTS = {
 # which one is likely in play (along with the possibility of a bluff or double
 # bluff of that strategy) and suggests a move to combat said strategy.
 class MetaMetaStrategy
-  def initialize(previous_scores = nil)
-    @bots = {
-      'random' => RandomBot.new,
-      'always_rock' => AlwaysRockBot.new,
-      'most_frequent' => MostFrequentBot.new
-    }
+  def initialize(previous_scores = nil, bots = DEFAULT_BOTS)
+    @bots = bots
 
     @scores = previous_scores || scores_template(@bots)
   end
