@@ -1,13 +1,14 @@
 require_relative 'bots/always_rock'
 require_relative 'bots/random'
 
-class MetaMetaStrategy
-	def initialize(previous_scores=nil)
-		@bots = {
-			"random" => RandomBot.new,
-			"always_rock" => AlwaysRockBot.new
-		}
+DEFAULT_BOTS = {
+  'random' => RandomBot.new,
+  'always_rock' => AlwaysRockBot.new
+}
 
+class MetaMetaStrategy
+	def initialize(previous_scores=nil, bots=DEFAULT_BOTS)
+		@bots = bots
 		@scores = previous_scores || scores_template(@bots)
 	end
 
@@ -44,15 +45,18 @@ class MetaMetaStrategy
 
 	def choose_best_bot
 		# bot with highest score (bluff or no bluff)
-		best_bot = @scores.max_by{ |s| s.max }[0]
+    best_arr[0]
 	end
 
 	def choose_best_move
-		best_arr = @scores.max_by{ |s| s[1..-1].max }
 		[best_arr[0], best_arr.index(best_arr[1..-1].max)]
 	end
 
 	private
+
+  def best_arr
+    @scores.max_by{ |s| s[1..-1].max }
+  end
 
 	def scores_template(bots)
 		@bots.map do |bot_name, bot|

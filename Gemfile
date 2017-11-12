@@ -10,6 +10,7 @@ gem 'httparty'
 group :development, :test do
   gem 'rake'
   gem 'foreman'
+  gem 'pry-byebug'
 end
 
 group :test do
