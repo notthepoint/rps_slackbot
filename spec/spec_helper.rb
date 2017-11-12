@@ -2,6 +2,7 @@ require 'rack/test'
 require 'rspec'
 require 'mock_redis'
 require 'dotenv'
+require 'pry'
 
 Dotenv.load('.env.test')
 
